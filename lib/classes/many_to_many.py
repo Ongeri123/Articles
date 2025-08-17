@@ -10,11 +10,18 @@ class Article:
         self.author = author
         self.magazine = magazine
         self._title = title
+        Article.all.append(self)
         
 
     @property
     def title(self):
         return self._title
+    
+    @title.setter
+    def title(self,value):
+        pass
+
+
   
         
 class Author:
@@ -22,7 +29,7 @@ class Author:
         if not isinstance(name, str):
             raise TypeError('Name should be a string')
         if len(name) == 0:
-               raise TypeError('Name must be longer than 0 characters')
+               raise ValueError('Name must be longer than 0 characters')
         self._name = name
 
     @property
@@ -30,15 +37,27 @@ class Author:
         return self._name
 
     def articles(self):
-        pass
+        return [article for article in Article.all if article.author == self]
 
     def magazines(self):
-        pass
+        return list(set([article.magazine for article in self.articles()]))
 
     def add_article(self, magazine, title):
-        pass
+        return Article(self,magazine,title)
 
     def topic_areas(self):
+        articles = self.articles()
+        if not articles:
+            return None
+        return list(set([article.magazine.category for article in self.articles()]))
+    
+    def topic_areas(self):
+        categories = list(set([article.magazine.category for article in self.articles()]))
+        return categories if categories else None
+
+
+    @name.setter
+    def name(self,value):
         pass
 
 class Magazine:
@@ -74,13 +93,16 @@ class Magazine:
             self._category = value
 
     def articles(self):
-        pass
+        return[article for article in Article.all if article.magazine == self]
 
     def contributors(self):
-        pass
+        return list(set([article.author for article in Article.all if article.magazine == self]))
 
     def article_titles(self):
-        pass
+        titles = [article.title for article in Article.all if article.magazine == self]
+        return titles if titles else None
 
     def contributing_authors(self):
-        pass
+        authors = [author for author in self.contributors()
+               if len([article for article in Article.all if article.author == author and article.magazine == self]) > 2]
+        return authors if authors else None
